@@ -1,0 +1,99 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <style>
+    body,
+    html {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: "微软雅黑";
+    }
+
+    #l-map {
+      height: 300px;
+      width: 100%;
+    }
+
+    #r-result,
+    #r-result table {
+      width: 100%;
+      font-size: 12px;
+    }
+
+  </style>
+  <script src="http://api.map.baidu.com/api?v=2.0&ak=jwTcIoGGL3WahiyCb2Hg7juZi1TGym0Y"></script>
+  <title>展示公交换乘的结果面板</title>
+</head>
+
+<body>
+  <div id="l-map"></div>
+  <div id="r-result"></div>
+
+  <script type="text/javascript">
+    const map = new BMap.Map("l-map");
+    map.centerAndZoom(new BMap.Point(118.85, 32.02895), 12);
+
+    const transit = new BMap.TransitRoute(map, {
+      renderOptions: {
+        map: map,
+        panel: "r-result"
+      }
+    });
+    
+
+    var mycars=new Array("明孝陵景区","灵谷景区","音乐台景区","白马石刻公园","南京市中山植物园","紫金山天文台","莫愁湖公园","红山森林动物园","燕子矶公园","总统府","阅江楼景区","东水关至集庆门段城墙（含中华门瓮城）","瞻园（太平天国历史博物馆，含夜瞻园）","神策门瓮城至太平门段城墙（含明城垣史博物馆）","市博物馆（朝天宫）","市民俗博物馆（甘熙宅第）","珍珠泉旅游度假区（含狮虎园）","珍珠泉名石艺术馆","明文化村（阳山碑材）","汤山古猿人洞","长江观音景区","大金山风景区","南京万成生态园","金牛湖风景区","天生桥风景区","南京市毗卢寺","南京美龄宫","江宁织造博物馆","南京市山翠谷","南京蔬菜花卉科技园","南京直立人化石遗址博物馆","国防教育馆","李剑晨艺术馆","魏紫熙艺术馆","龚贤纪念馆","六朝博物馆","南京老山国家森林公园","南京雨发生态园","愚园","南京市达摩古洞景区");
+
+    var from = GetQueryString("from");
+    var to = GetQueryString("to");
+  transit.search(mycars[from], mycars[to]);
+
+  setTimeout(function() {
+      resultNode = document.getElementsByClassName("trans-title");
+      var s=mycars[from]+"to"+mycars[to]+"\n";
+      for(i=0;i<resultNode.length;i++){
+        s+=resultNode[i].innerText;
+      }
+      saveFile(new Blob([s]), from+"to"+to);
+    if(from<39){
+      to=parseInt(to)+1;
+      if(to>=41){
+        from = parseInt(from)+1;;
+        to = parseInt(from)+1;
+      }
+      window.open("http://localhost:8080/test/index2.html?from="+from+"&to="+to);
+    }
+    window.close();
+  }, 1000);
+
+    function saveFile(blob, fileName) {
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+        return true;
+      } else if (window.URL.createObjectURL) {
+        const a = document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        return true;
+      } else {
+        alert('浏览器不支持下载文件！');
+      }
+    }
+
+
+  function GetQueryString(name)
+  {
+       var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+       var r = window.location.search.substr(1).match(reg);
+       if(r!=null)return  unescape(r[2]); return null;
+  }
+
+  </script>
+</body>
+
+</html>
